@@ -1,4 +1,5 @@
 import {Dispatch, SetStateAction, useState} from "react"
+import { StorageReference } from "firebase/storage";
 
 import {
   Select,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/select"
 
 interface FileSelectProps {
-  files: string[],
+  files: StorageReference[],
   setDownloadFile: Dispatch<SetStateAction<string | null>>
 }
 
@@ -30,8 +31,8 @@ export default function FileSelect({files, setDownloadFile}: FileSelectProps) {
       <SelectContent>
         <SelectGroup>
           {
-            files.map((file) => (
-              <SelectItem key={file} value={file}>{file}</SelectItem>
+            files.map((ref) => (
+              <SelectItem key={ref.name} value={ref.name}>{ref.name}</SelectItem>
             ))
           }
         </SelectGroup>

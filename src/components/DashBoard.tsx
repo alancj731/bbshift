@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import {BellIcon, DownloadIcon, Package2Icon, ShareIcon } from "./Icons";
 import FileSelect from "./FileSelect";
 import { useState, useEffect } from "react";
+import { upload, download, listFiles } from "@/lib/transfer";
+import { StorageReference } from "firebase/storage";
 
 export default function DashBoard() {
   const [publishFile, setPublishFiles] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("idle");
-  const [fileList, setFileList] = useState([]);
+  const [fileList, setFileList] = useState<StorageReference[]>([]);
   const [fileToDownload, setFileToDownload] = useState<string | null>(null);
 
   useEffect(() => {
@@ -17,16 +19,15 @@ export default function DashBoard() {
 
   // get files list from server
   const updateFileList = async () => {
-    const url = "http://localhost:3000/api/v1/index";
-    const response = await fetch(url);
-    const result = await response.json();
-    if (response.ok) {
-        setFileList(result.files);
+    const result = await listFiles();
+    if (result) {
+      setFileList(result);
     }
   };
 
-  // set the file to upload
+  // select the file to upload
   const handleSelectFile = (event: any) => {
+    setUploadStatus("idle");
     if (!event.target.files[0]) return;
     const selectedFile = event.target.files[0];
     const extension = selectedFile.name.split(".").pop();
@@ -37,27 +38,24 @@ export default function DashBoard() {
     setPublishFiles(selectedFile);
   };
 
-  // upload file to server
+  // upload file to firebase
   const handleUpload = async () => {
     if (!publishFile) {
       console.log("No file selected");
       return;
     }
-    const data = new FormData();
-    data.append("file", publishFile);
-    const url = "http://localhost:3000/api/v1/upload";
+
     setUploadStatus("uploading");
-    const response = await fetch(url, {
-      method: "POST",
-      body: data,
-    });
-    if (response.ok) {
+
+    try{ 
+      const uploadedFileUrl = await upload(publishFile);
       setUploadStatus("success");
       updateFileList();
-    } else {
+    } 
+    catch (error) {
+      console.log(error)
       setUploadStatus("error");
     }
-    const result = await response.json();
   };
 
   // download file from server
@@ -66,8 +64,16 @@ export default function DashBoard() {
       console.log("No file selected");
       return;
     }
-    const url = `http://localhost:3000/${fileToDownload}`;
-    window.open(url, "_blank");
+
+    const selectedRef = fileList.find((ref) => ref.name === fileToDownload);
+    if (!selectedRef) {
+      console.log("Invalid file selected");
+      return;
+    }
+    download(selectedRef);
+    // console.log("file to download: ", fileToDownload.name);
+    // const url = `http://localhost:3000/${fileToDownload}`;
+    // window.open(url, "_blank");
   };
 
   return (
