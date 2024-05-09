@@ -25,7 +25,7 @@ export default function FileSelect({files, setDownloadFile}: FileSelectProps) {
 
   return (
     <Select onValueChange={(value)=>handleSelectChange(value)}>
-      <SelectTrigger className="w-[240px]">
+      <SelectTrigger>
         <SelectValue placeholder="Select a file to download" />
       </SelectTrigger>
       <SelectContent>

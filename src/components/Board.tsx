@@ -125,28 +125,31 @@ export default function Board() {
               <WeekSelect setWeek={setWeek} />
 
               <div className="ml-1 mt-2 font-semibold">
-                  {uploadStatus === "uploading" && <p>Uploading...</p>}
-                  {uploadStatus === "invalid" && (
-                    <p>Please choose .xls or .xlsx file.</p>
-                  )}
-                  {uploadStatus === "success" && <p>File upload successful.</p>}
-                  {uploadStatus === "error" && <p>File upload failed.</p>}
-                </div>
-
+                {uploadStatus === "uploading" && <p>Uploading...</p>}
+                {uploadStatus === "invalid" && (
+                  <p>Please choose .xls or .xlsx file.</p>
+                )}
+                {uploadStatus === "success" && <p>File upload successful.</p>}
+                {uploadStatus === "error" && <p>File upload failed.</p>}
+              </div>
             </div>
           </div>
           {/* left side ended here */}
           <div className="rounded-lg bg-gray-100 p-6 shadow-md h-full">
             <h2 className="mb-6 text-xl font-bold">Download A Schedule</h2>
             <div className="flex justify-between">
-              <Button className="bg-[#4c6ef5] text-white hover:bg-[#503bdb] px-4 py-2 w-1/3">
+              <Button
+                className="bg-[#4c6ef5] text-white hover:bg-[#503bdb] px-4 py-2 w-1/3"
+                onClick={handleDownload}
+              >
                 <DownloadIcon className="h-5 w-5 mr-2" />
                 Download
               </Button>
             </div>
 
             <div className="mt-6 grid gap-4">
-              <Select>
+              <FileSelect files={fileList} setDownloadFile={setFileToDownload} />
+              {/* <Select>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a week..." />
                 </SelectTrigger>
@@ -156,7 +159,7 @@ export default function Board() {
                   <SelectItem value="week3">Week 3</SelectItem>
                   <SelectItem value="week4">Week 4</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
             </div>
           </div>
         </div>
