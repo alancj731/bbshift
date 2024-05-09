@@ -111,18 +111,20 @@ export default function Board() {
               </Button>
 
               <Button className=" text-white bg-black hover:bg-red-500 px-4 py-2 w-1/3">
-                Logout
+                <Link href="/api/auth/logout">Logout</Link>
               </Button>
             </div>
 
             <div className="mt-6 grid gap-6">
-              <Input
-                className="w-full"
-                type="file"
-                onChange={(event) => handleSelectFile(event)}
-              />
+              {admin && (
+                <Input
+                  className="w-full"
+                  type="file"
+                  onChange={(event) => handleSelectFile(event)}
+                />
+              )}
 
-              <WeekSelect setWeek={setWeek} />
+              {admin && <WeekSelect setWeek={setWeek} />}
 
               <div className="ml-1 mt-2 font-semibold">
                 {uploadStatus === "uploading" && <p>Uploading...</p>}
@@ -148,7 +150,10 @@ export default function Board() {
             </div>
 
             <div className="mt-6 grid gap-4">
-              <FileSelect files={fileList} setDownloadFile={setFileToDownload} />
+              <FileSelect
+                files={fileList}
+                setDownloadFile={setFileToDownload}
+              />
               {/* <Select>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a week..." />

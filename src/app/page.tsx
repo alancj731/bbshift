@@ -1,5 +1,4 @@
 "use client";
-import DashBoard from "@/components/DashBoard";
 import HomePage from "@/components/Home";
 import Board from "@/components/Board";
 import { useUser } from "@auth0/nextjs-auth0/client";
