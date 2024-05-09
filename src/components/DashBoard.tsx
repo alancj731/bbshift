@@ -7,6 +7,7 @@ import WeekSelect from "./WeekSelect";
 import { useState, useEffect } from "react";
 import { upload, download, listFiles } from "@/lib/transfer";
 import { StorageReference } from "firebase/storage";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 export default function DashBoard() {
   // local file selected for upload
@@ -16,6 +17,9 @@ export default function DashBoard() {
   const [uploadStatus, setUploadStatus] = useState("idle");
   const [fileList, setFileList] = useState<StorageReference[]>([]);
   const [fileToDownload, setFileToDownload] = useState<string | null>(null);
+
+  const { user, error, isLoading } = useUser();
+  const admin = user?.email === "admin@bestbuy.ca";
 
   useEffect(() => {
     updateFileList();
@@ -96,22 +100,26 @@ export default function DashBoard() {
                   className="flex items-center gap-3 rounded-lg px-3 py-2 mb-4 text-gray-900 transition-all hover:text-gray-900 dark:text-gray-50 dark:hover:text-gray-50"
                   variant="ghost"
                   onClick={handleUpload}
-                  disabled={!publishFile || week === ""}
+                  disabled={!publishFile || week === "" || !admin}
                 >
                   <ShareIcon className="h-4 w-4" />
                   Publish a New Schedule
                 </Button>
-                <input
-                  type="file"
-                  onChange={(event) => handleSelectFile(event)}
-                  className="px-3"
-                ></input>
-                
-                <div className="px-2 py-5">
-                  <WeekSelect setWeek={setWeek} />
-                </div>
+                {admin && (
+                  <input
+                    type="file"
+                    onChange={(event) => handleSelectFile(event)}
+                    className="px-3"
+                  ></input>
+                )}
 
-                <div className="px-3 py-2">
+                {admin && (
+                  <div className="px-2 py-5">
+                    <WeekSelect setWeek={setWeek} />
+                  </div>
+                )}
+
+                <div className="px-3 mb-2">
                   {uploadStatus === "uploading" && <p>Uploading...</p>}
                   {uploadStatus === "invalid" && (
                     <p>Please choose .xls or .xlsx file!</p>
@@ -119,6 +127,11 @@ export default function DashBoard() {
                   {uploadStatus === "success" && <p>File upload successful!</p>}
                   {uploadStatus === "error" && <p>File upload failed!</p>}
                 </div>
+
+                <Button variant="destructive" className="ml-1.5 mt-2">
+                  <Link href="/api/auth/logout">Logout</Link>
+                </Button>
+
 
               </div>
             </nav>
