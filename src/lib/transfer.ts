@@ -1,8 +1,9 @@
 import { ref, uploadBytesResumable, getDownloadURL, list, StorageReference } from 'firebase/storage';
 import storage from './firebase';
 
-export async function upload(file: File) {
-    const storageRef = ref(storage, getFileNameByTime());
+export async function upload(file: File, week: string) {
+    const fileName = week === 'next_week' ? 'shfit_next_week.xlsx' : 'shift_after_next.xlsx';
+    const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     return new Promise<string>((resolve, reject) => {
@@ -18,7 +19,7 @@ export async function upload(file: File) {
 
 export async function download(ref: StorageReference) {
     const fileUrl = await getDownloadURL(ref);
-    
+
     if (!fileUrl || fileUrl === '') {
         console.log('Invalid download URL!');
         return
@@ -35,10 +36,7 @@ export async function listFiles() {
     const listRef = ref(storage, '');
     try{
         const firstPage = await list(listRef, { maxResults: 100 });
-        firstPage.items.sort((a, b) => { return a.name < b.name ? 1 : -1; });
-        // console.log(firstPage.items);
-        // const firsturl = await getDownloadURL(firstPage.items[0]);
-        // console.log(firsturl);
+        firstPage.items.sort((a, b) => { return a.name > b.name ? 1 : -1; });
         return firstPage.items;
     }
     catch (error) {
@@ -47,9 +45,9 @@ export async function listFiles() {
     }
 }
 
-function getFileNameByTime(){
-    const currentDate=new Date();
-    const date =currentDate.toISOString().slice(0,10).replace(/\s+/g,'');
-    const time = currentDate.toLocaleTimeString().slice(0,8).replace(/\s+/g,'');
-    return `${date}_${time}.xlsx`;
-}
+// function getFileNameByTime(){
+//     const currentDate=new Date();
+//     const date =currentDate.toISOString().slice(0,10).replace(/\s+/g,'');
+//     const time = currentDate.toLocaleTimeString().slice(0,8).replace(/\s+/g,'');
+//     return `${date}_${time}.xlsx`;
+// }

@@ -1,14 +1,18 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {BellIcon, DownloadIcon, Package2Icon, ShareIcon } from "./Icons";
+import { BellIcon, DownloadIcon, Package2Icon, ShareIcon } from "./Icons";
 import FileSelect from "./FileSelect";
+import WeekSelect from "./WeekSelect";
 import { useState, useEffect } from "react";
 import { upload, download, listFiles } from "@/lib/transfer";
 import { StorageReference } from "firebase/storage";
 
 export default function DashBoard() {
+  // local file selected for upload
   const [publishFile, setPublishFiles] = useState(null);
+  // next_week or after_next
+  const [week, setWeek] = useState("");
   const [uploadStatus, setUploadStatus] = useState("idle");
   const [fileList, setFileList] = useState<StorageReference[]>([]);
   const [fileToDownload, setFileToDownload] = useState<string | null>(null);
@@ -47,13 +51,12 @@ export default function DashBoard() {
 
     setUploadStatus("uploading");
 
-    try{ 
-      const uploadedFileUrl = await upload(publishFile);
+    try {
+      const uploadedFileUrl = await upload(publishFile, week);
       setUploadStatus("success");
       updateFileList();
-    } 
-    catch (error) {
-      console.log(error)
+    } catch (error) {
+      console.log(error);
       setUploadStatus("error");
     }
   };
@@ -71,9 +74,6 @@ export default function DashBoard() {
       return;
     }
     download(selectedRef);
-    // console.log("file to download: ", fileToDownload.name);
-    // const url = `http://localhost:3000/${fileToDownload}`;
-    // window.open(url, "_blank");
   };
 
   return (
@@ -96,7 +96,7 @@ export default function DashBoard() {
                   className="flex items-center gap-3 rounded-lg px-3 py-2 mb-4 text-gray-900 transition-all hover:text-gray-900 dark:text-gray-50 dark:hover:text-gray-50"
                   variant="ghost"
                   onClick={handleUpload}
-                  disabled={!publishFile}
+                  disabled={!publishFile || week === ""}
                 >
                   <ShareIcon className="h-4 w-4" />
                   Publish a New Schedule
@@ -106,27 +106,36 @@ export default function DashBoard() {
                   onChange={(event) => handleSelectFile(event)}
                   className="px-3"
                 ></input>
+                
+                <div className="px-2 py-5">
+                  <WeekSelect setWeek={setWeek} />
+                </div>
+
+                <div className="px-3 py-2">
+                  {uploadStatus === "uploading" && <p>Uploading...</p>}
+                  {uploadStatus === "invalid" && (
+                    <p>Please choose .xls or .xlsx file!</p>
+                  )}
+                  {uploadStatus === "success" && <p>File upload successful!</p>}
+                  {uploadStatus === "error" && <p>File upload failed!</p>}
+                </div>
+
               </div>
             </nav>
-            <nav>
-              <div className="px-7 py-4">
-                {uploadStatus === "uploading" && <p>Uploading...</p>}
-                {uploadStatus === "invalid" && (
-                  <p>Please choose .xls or .xlsx file!</p>
-                )}
-                {uploadStatus === "success" && <p>File upload successful!</p>}
-                {uploadStatus === "error" && <p>File upload failed!</p>}
-              </div>
-            </nav>
+            <nav></nav>
           </div>
         </div>
       </div>
       <div className="flex flex-col">
         <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40">
           <div className="w-full flex-1">
-            <FileSelect files={fileList} setDownloadFile={setFileToDownload}/>
+            <FileSelect files={fileList} setDownloadFile={setFileToDownload} />
           </div>
-          <Button className="shrink-0" variant="outline" onClick={handleDownload}>
+          <Button
+            className="shrink-0"
+            variant="outline"
+            onClick={handleDownload}
+          >
             <DownloadIcon className="mr-2 h-4 w-4" />
             Download
           </Button>
@@ -136,8 +145,3 @@ export default function DashBoard() {
     </div>
   );
 }
-
-
-
-
-
