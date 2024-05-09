@@ -21,7 +21,7 @@ export default function WeekSelect({ setWeek }: WeekSelectProps) {
 
   return (
     <Select onValueChange={(value) => handleSelectChange(value)}>
-      <SelectTrigger className="w-[240px]">
+      <SelectTrigger >
         <SelectValue placeholder="Select a week" />
       </SelectTrigger>
       <SelectContent>
